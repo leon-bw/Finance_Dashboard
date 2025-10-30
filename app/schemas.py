@@ -135,6 +135,12 @@ class UserResponse(BaseModel):
     )
     last_login: Optional[datetime]
 
+    class Config:
+        from_attributes = True
+
+
+# JWT Token class models
+
 
 class Token(BaseModel):
     """
