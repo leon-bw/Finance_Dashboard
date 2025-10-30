@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, Float, String
+from sqlalchemy import Boolean, Column, Float, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 
 from .database import Base
@@ -43,3 +43,36 @@ class User(Base):
         datetime, default=datetime.timestamp, onupdate=datetime.timestamp
     )
     last_login = Column(datetime, nullable=True)
+
+
+class Category(Base):
+    __tablename__ = "categories"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = Column(String, nullable=False)
+    type = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    icon = Column(String, nullable=True)
+    is_default = Column(Boolean, default=False)
+    created_at = Column(datetime, default=datetime.timestamp)
+    updated_at = Column(
+        datetime, default=datetime.timestamp, onupdate=datetime.timestamp
+    )
+
+
+class Budget(Base):
+    __tablename__ = "budgets"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    category_id = Column(UUID(as_uuid=True), ForeignKey("category.id"), nullable=True)
+    amount = Column(Float, nullable=False)
+    period = Column(String, default="monthly")
+    start_date = Column(datetime, nullable=False)
+    end_date = Column(datetime, nullable=False)
+    is_active = Column(Boolean, default=True)
+    alert_threshold = Column(Float, default=0.8)
+    created_at = Column(datetime, default=datetime.timestamp)
+    updated_at = Column(
+        datetime, default=datetime.timestamp, onupdate=datetime.timestamp
+    )
