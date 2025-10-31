@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import Boolean, Column, Float, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from .database import Base
 
@@ -44,6 +45,9 @@ class User(Base):
     )
     last_login = Column(datetime, nullable=True)
 
+    transactions = relationship("Transaction", back_populates="category")
+    budgets = relationship("Budget", back_populates="category")
+
 
 class Category(Base):
     __tablename__ = "categories"
@@ -58,6 +62,9 @@ class Category(Base):
     updated_at = Column(
         datetime, default=datetime.timestamp, onupdate=datetime.timestamp
     )
+
+    transactions = relationship("Transaction", back_populates="category")
+    budgets = relationship("Budget", back_populates="category")
 
 
 class Budget(Base):
