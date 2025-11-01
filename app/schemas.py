@@ -51,6 +51,9 @@ class TransactionResponse(TransactionBase):
         description="The date and time the transaction was last updated in the database"
     )
 
+    class Config:
+        from_attributes = True
+
 
 class TransactionUpdate(TransactionBase):
     """
@@ -89,6 +92,12 @@ class UserCreate(UserBase):
     """
 
     password: str = Field(min_length=8, description="User password (hashed)")
+    currency_preference: str = Field(
+        default="GBP", description="The preferred currency of the user"
+    )
+    monthly_budget: float = Field(
+        default=0, description="The monthly budget of the user"
+    )
 
 
 class UserLogin(BaseModel):
@@ -110,14 +119,8 @@ class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     password: Optional[str] = None
-    currency_preference: Optional[str] = (
-        None,
-        Field(description="The currency preference of the user"),
-    )
-    monthly_budget: Optional[float] = (
-        None,
-        Field(description="The monthly budget of the user"),
-    )
+    currency_preference: Optional[str] = None
+    monthly_budget: Optional[float] = None
 
 
 class UserResponse(BaseModel):
@@ -126,8 +129,12 @@ class UserResponse(BaseModel):
     """
 
     id: UUID
+    email: EmailStr
+    username: str
+    first_name: str
+    last_name: str
     is_active: bool
-    is_demo: bool = Field(description="Confirm is this is a demo account or not")
+    is_demo: bool = Field(description="Confirm if demo account is in use")
     currency_preference: str
     monthly_budget: Optional[float]
     created_at: datetime = Field(
@@ -148,7 +155,9 @@ class Token(BaseModel):
     """
 
     access_token: str = Field(description="The access token for the user")
-    token_type: str = "bearer", Field(description="The type of token (always bearer)")
+    token_type: str = Field(
+        default="bearer", description="The type of token (always bearer)"
+    )
 
 
 class TokenData(BaseModel):
@@ -195,6 +204,12 @@ class CategoryResponse(CategoryBase):
     created_at: datetime = Field(
         description="The date and time the category was created in the database"
     )
+    updated_at: datetime = Field(
+        description="The date and time the category was last updated in the database"
+    )
+
+    class Config:
+        from_attributes = True
 
 
 class CategoryUpdate(CategoryBase):
@@ -206,9 +221,6 @@ class CategoryUpdate(CategoryBase):
     description: Optional[str] = None
     icon: Optional[str] = None
     colour: Optional[str] = None
-
-    class Config:
-        from_attributes = True
 
 
 # ----Budget class models----
@@ -263,17 +275,11 @@ class BudgetResponse(BudgetBase):
     is_active: bool = Field(
         default=True, description="Whether the budget is active or not"
     )
-    spent_amount: Optional[float] = Field(
-        description="The current amount spent of the budget"
+    created_at: datetime = Field(
+        description="The date and time the budget was created in the database"
     )
-    remaining_amount: Optional[float] = Field(
-        description="The amount of budget remaining"
-    )
-    percentage_spent: Optional[float] = Field(
-        description="The percentage of the budget that has been used"
-    )
-    category: Optional[CategoryResponse] = Field(
-        None, description="The category the budget belongs to"
+    updated_at: datetime = Field(
+        description="The date and time the budget was last updated in the database"
     )
 
     class Config:
@@ -287,6 +293,7 @@ class BudgetUpdate(BudgetBase):
 
     amount: Optional[float] = Field(None, gt=0)
     period: Optional[Literal["daily", "weekly", "monthly", "yearly"]] = None
+    category_id: Optional[UUID] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     is_active: Optional[bool] = None
