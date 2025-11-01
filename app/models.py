@@ -68,6 +68,7 @@ class Category(Base):
     type = Column(String, nullable=False)
     description = Column(String, nullable=True)
     icon = Column(String, nullable=True)
+    colour = Column(String, nullable=True)
     is_default = Column(Boolean, default=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(
