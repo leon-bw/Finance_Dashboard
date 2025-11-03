@@ -1,5 +1,7 @@
-from app.database import Session
-from app.models import Category
+from app.auth import get_password_hash
+
+from .database import Session
+from .models import Category, User
 
 
 def seed_default_categories():
@@ -126,3 +128,34 @@ def seed_default_categories():
     db.commit()
     db.close()
     print("Default categories seeded successfully")
+
+
+def seed_demo_user():
+    db = Session()
+    # Check id demo user exists
+    try:
+        demo_user = db.query(User).filter(User.is_demo).first()
+
+        if not demo_user:
+            demo_user = User(
+                username="demo",
+                email="demo@myfinanacecoach.com",
+                first_name="Demo",
+                last_name="User",
+                hashed_password=get_password_hash("demo1234"),
+                is_demo=True,
+                is_active=True,
+                monthly_budget=2500,
+                currency_preference="GBP",
+            )
+            db.add(demo_user)
+            db.commit()
+            print("Demo user created: username = 'demo', password = 'demo1234'")
+        else:
+            print("Demo user already exists")
+    except Exception as error:
+        db.rollback()
+        print(f"Error seeding demo user {error}")
+
+    finally:
+        db.close()

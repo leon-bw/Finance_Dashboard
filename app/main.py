@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from . import models  # noqa: F401
 from .database import Base, engine
+from .routers import auth
 
 
 @asynccontextmanager
@@ -18,6 +19,8 @@ app = FastAPI(
     description="A financial management system for tracking transactions and budgets",
     lifespan=lifespan,
 )
+
+app.include_router(auth.router)
 
 
 @app.get("/")

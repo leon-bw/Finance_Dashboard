@@ -9,6 +9,7 @@ from app.schemas import Token, UserCreate, UserResponse
 from ..auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     create_access_token,
+    get_current_active_user,
     get_password_hash,
     verify_password,
 )
@@ -90,3 +91,26 @@ def login(
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/demo-login", response_model=Token)
+def demo_login(db: Session = Depends(get_db)):
+    demo_user = db.query(User).filter(User.is_demo).first()
+
+    if not demo_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Demo account not found. Please contact admin",
+        )
+
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": demo_user.username}, expires_delta=access_token_expires
+    )
+
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/me", response_model=UserResponse)
+def get_current_user_info(current_user: User = Depends(get_current_active_user)):
+    return current_user
