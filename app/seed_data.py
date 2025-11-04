@@ -1,3 +1,6 @@
+import random
+from datetime import datetime, timedelta, timezone
+
 from app.auth import get_password_hash
 
 from .database import Session
@@ -177,13 +180,14 @@ def seed_demo_user():
         db.close()
 
 
-def seed_demo_transaction():
+def seed_demo_transactions():
     db = Session()
 
     try:
         demo_user = db.query(User).filter(User.is_demo).first()
         if not demo_user:
             print("Demo user not found, run seed_demo_user first")
+            return
 
         demo_transactions = (
             db.query(Transaction).filter(Transaction.user_id == demo_user.id).count()
@@ -192,6 +196,9 @@ def seed_demo_transaction():
             print(
                 f"Demo transactions already exist {demo_transactions} transactions in database"
             )
+            return
+
+        categories = {cat.name: cat for cat in db.query(Category).all()}
 
         transaction_template = {
             "Salary": [
@@ -418,9 +425,116 @@ def seed_demo_transaction():
             ],
         }
 
+        end_date = datetime.now(timezone.utc)
+        start_date = end_date - timedelta(days=90)
+
+        transactions = []
+
+        current_date = start_date
+        while current_date <= end_date:
+            for category_name, templates in transaction_template.items():
+                for template in templates:
+                    if template.get("frequency") == "monthly":
+                        transaction_date = datetime(
+                            current_date.year,
+                            current_date.month,
+                            template["day"],
+                            random.randint(8, 22),
+                            random.randint(0, 59),
+                            tzinfo=timezone.utc,
+                        )
+
+                        if start_date <= transaction_date <= end_date:
+                            category = categories.get(template["category"])
+                            if category:
+                                transactions.append(
+                                    Transaction(
+                                        user_id=demo_user.id,
+                                        category_id=category.id,
+                                        amount=template["amount"],
+                                        description=template["description"],
+                                        date=transaction_date,
+                                        type=template["type"],
+                                        account="Main Account",
+                                        currency="GBP",
+                                        status="completed",
+                                    )
+                                )
+
+            if current_date.month == 12:
+                current_date = datetime(
+                    current_date.year + 1, 1, 1, tzinfo=timezone.utc
+                )
+            else:
+                current_date = datetime(
+                    current_date.year, current_date.month + 1, 1, tzinfo=timezone.utc
+                )
+
+        # Generate random one off transactions
+        for category_name, templates in transaction_template.items():
+            for template in templates:
+                if template.get("frequency") != "monthly":
+                    num_occurences = random.randint(1, 15)
+
+                    for _ in range(num_occurences):
+                        random_date = start_date + timedelta(
+                            days=random.randint(0, 90),
+                            hours=random.randint(8, 22),
+                            minutes=random.randint(0, 59),
+                        )
+
+                        if "amount_range" in template:
+                            amount = round(
+                                random.uniform(
+                                    template["amount_range"][0],
+                                    template["amount_range"][1],
+                                ),
+                                2,
+                            )
+                        else:
+                            amount = template["amount"]
+
+                        category = categories.get(template["category"])
+                        if category:
+                            transactions.append(
+                                Transaction(
+                                    user_id=demo_user.id,
+                                    category_id=category.id,
+                                    amount=amount,
+                                    description=template["description"],
+                                    date=random_date,
+                                    type=template["type"],
+                                    account="Main Account",
+                                    currency="GBP",
+                                    status="completed",
+                                )
+                            )
+
+        db.bulk_save_objects(transactions)
+        db.commit()
+
+        total_income = sum(t.amount for t in transactions if t.type == "income")
+        total_expenses = sum(t.amount for t in transactions if t.type == "expense")
+
+        print(f"Demo transactions created: {len(transactions)} transactions")
+        print(f"Total Income: £{total_income:,.2f}")
+        print(f"Total Expenses: £{total_expenses:,.2f}")
+
     except Exception as error:
         db.rollback()
         print(f"Error seeding demo transactions: {error}")
 
     finally:
         db.close()
+
+
+def seed_all():
+    print("started database seeding")
+    seed_default_categories()
+    seed_demo_user()
+    seed_demo_transactions()
+    print("Database seeding complete")
+
+
+if __name__ == "__main__":
+    seed_all()
