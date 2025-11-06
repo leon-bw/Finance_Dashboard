@@ -21,6 +21,7 @@ __pycache__/
 *.sqlite3
 *.sqlite
 finance_app.db
+test_*.db
 
 # Distribution / packaging
 build/

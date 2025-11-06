@@ -158,7 +158,7 @@ def seed_demo_user():
         if not demo_user:
             demo_user = User(
                 username="demo",
-                email="demo@myfinanacecoach.com",
+                email="demo@myfinancecoach.com",
                 first_name="Demo",
                 last_name="User",
                 hashed_password=get_password_hash("demo1234"),
