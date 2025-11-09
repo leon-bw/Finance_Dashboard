@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
@@ -12,7 +14,7 @@ from app.models import User
 load_dotenv()
 
 
-TEST_DATABASE_URL = "sqlite:///test_finance_app.db"
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite:///test_finance_app.db")
 
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 
@@ -21,6 +23,9 @@ TestingSession = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @pytest.fixture(scope="function")
 def test_db():
+    """
+    Create the test database and provide the session
+    """
     Base.metadata.create_all(bind=engine)
     db = TestingSession()
     try:
@@ -48,13 +53,18 @@ def client(test_db):
 
 @pytest.fixture(scope="function")
 def test_user(test_db):
-    # Create a test user
+    """
+    Create a test user for auth tests
+    """
+
+    hashed_password = get_password_hash("test1234")
+
     user = User(
         username="testuser",
         email="test@test.com",
         first_name="Test",
         last_name="User",
-        hashed_password=get_password_hash("test1234"),
+        hashed_password=hashed_password,
         monthly_budget=3500,
         currency_preference="GBP",
         is_active=True,
@@ -68,13 +78,18 @@ def test_user(test_db):
 
 @pytest.fixture(scope="function")
 def test_demo_user(test_db):
-    # Create a test user
+    """
+    Create a demo user to test demo account restrictions
+    """
+
+    hashed_password = get_password_hash("demo1234")
+
     demo_user = User(
         username="demo",
         email="demo@myfinancecoach.com",
         first_name="Demo",
         last_name="User",
-        hashed_password=get_password_hash("demo1234"),
+        hashed_password=hashed_password,
         monthly_budget=3500,
         currency_preference="GBP",
         is_active=True,
@@ -88,8 +103,11 @@ def test_demo_user(test_db):
 
 @pytest.fixture(scope="function")
 def authenticated_client(client, test_user):
+    """
+    Provide valid auth token to client
+    """
     response = client.post(
-        "auth/login", data={"username": "testuser", "password": "test1234"}
+        "/auth/login", data={"username": "testuser", "password": "test1234"}
     )
     token = response.json()["access_token"]
 

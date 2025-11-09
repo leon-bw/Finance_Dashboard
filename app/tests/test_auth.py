@@ -100,12 +100,13 @@ class TestUserLogin:
         assert "access_token" in data
         assert data["token_type"] == "bearer"
 
-    def test_login_incorrect_pw(self, client):
+    def test_login_incorrect_pw(self, client, test_user):
         """
         Test login fails with incorrect password
         """
         response = client.post(
-            "/auth/login", data={"username": "newuser", "password": "wrong_passw0rd123"}
+            "/auth/login",
+            data={"username": "testuser", "password": "wrong_passw0rd123"},
         )
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
