@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from . import models  # noqa: F401
 from .database import Base, engine
-from .routers import auth
+from .routers import auth, transactions
 
 
 @asynccontextmanager
@@ -21,6 +21,7 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
+app.include_router(transactions.router)
 
 
 @app.get("/")
