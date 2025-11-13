@@ -11,7 +11,7 @@ from app.database import get_db
 from app.models import Category, Transaction, User
 from app.schemas import TransactionCreate, TransactionResponse, TransactionUpdate
 
-router = APIRouter(prefix="/transactions", tags=["transactions"])
+router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
 
 @router.get("/", response_model=List[TransactionResponse])
