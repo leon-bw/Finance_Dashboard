@@ -1,5 +1,4 @@
-from datetime import datetime
-from time import timezone
+from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
 
@@ -12,6 +11,27 @@ from app.models import Category, Transaction, User
 from app.schemas import TransactionCreate, TransactionResponse, TransactionUpdate
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
+
+
+def transaction_to_response(transaction: Transaction) -> dict:
+    """
+    Convert Transaction model to correct response
+    """
+    return {
+        "id": transaction.id,
+        "amount": transaction.amount,
+        "description": transaction.description,
+        "date": transaction.date,
+        "category": transaction.category.name
+        if transaction.category
+        else "Uncategorised",
+        "type": transaction.type,
+        "account": transaction.account,
+        "currency": transaction.currency,
+        "status": transaction.status,
+        "created_at": transaction.created_at,
+        "updated_at": transaction.updated_at,
+    }
 
 
 @router.get("/", response_model=List[TransactionResponse])
@@ -40,10 +60,10 @@ def get_transactions(
         query = query.filter(Transaction.date <= end_date)
 
     transactions = query.offset(skip).limit(limit).all()
-    return transactions
+    return [transaction_to_response(t) for t in transactions]
 
 
-@router.get("/{transaction_id}", response_model=List[TransactionResponse])
+@router.get("/{transaction_id}", response_model=TransactionResponse)
 def get_single_transaction(
     transaction_id: UUID,
     current_user: User = Depends(get_current_active_user),
@@ -65,7 +85,7 @@ def get_single_transaction(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Transaction {transaction_id} not found",
         )
-    return transaction
+    return transaction_to_response(transaction)
 
 
 @router.post(
@@ -79,22 +99,27 @@ def create_transaction(
     """
     Create a new transaction
     """
-    category = db.query(Category).filter(Category.id == transaction.category_id).first()
+    category = db.query(Category).filter(Category.name == transaction.category).first()
     if not category:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Category with id {Transaction.category_id} not found",
+            detail=f"Category: {Transaction.category} not found",
         )
 
+    transaction_data = transaction.model_dump(exclude={"category"})
+
     new_transaction = Transaction(
-        **transaction.model_dump(), user_id=current_user.id, status="completed"
+        **transaction_data,
+        user_id=current_user.id,
+        category_id=category.id,
+        status="completed",
     )
 
     db.add(new_transaction)
     db.commit()
     db.refresh(new_transaction)
 
-    return new_transaction
+    return transaction_to_response(new_transaction)
 
 
 @router.put("/{transaction_id}", response_model=TransactionResponse)
@@ -115,7 +140,7 @@ def update_transaction(
         .first()
     )
 
-    if not Transaction:
+    if not transaction:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Transaction with id {transaction_id} not found",
@@ -128,10 +153,10 @@ def update_transaction(
 
     transaction.updated_at = datetime.now(timezone.utc)
 
-    db.commmit()
+    db.commit()
     db.refresh(transaction)
 
-    return transaction
+    return transaction_to_response(transaction)
 
 
 @router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)

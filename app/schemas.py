@@ -12,7 +12,7 @@ class TransactionBase(BaseModel):
     Base model with shared fields for all transactions
     """
 
-    amount: float = Field(description="The amount of the transaction")
+    amount: float = Field(gt=0, description="The amount of the transaction")
     description: str = Field(description="The description of the transaction")
     date: datetime | None = Field(
         description="The date and time the transaction occurred"

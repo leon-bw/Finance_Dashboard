@@ -25,10 +25,10 @@ def test_category(test_db):
     Create a test category
     """
     category = Category(
-        name="Self Care",
+        name="Groceries",
         type="expense",
-        description="Hair appointment",
-        icon="💈",
+        description="Grocery and household items shopping",
+        icon="🛒",
         colour="#D4C6E0",
         is_default=True,
     )
@@ -112,13 +112,14 @@ class TestCreateTransaction:
         """
         response = client.post(
             "/transactions/",
-            auth_headers,
+            headers=auth_headers,
             json={
                 "amount": -50.00,
                 "description": "Test",
-                "category": "Entertainment",
+                "category": "Groceries",
                 "type": "expense",
                 "account": "Main Account",
+                "currency": "GBP",
                 "date": datetime.now(timezone.utc).isoformat(),
             },
         )
@@ -263,7 +264,7 @@ class TestTransactionFilters:
         for i in range(5):
             transaction = Transaction(
                 user_id=test_user.id,
-                catergory_id=test_category.id,
+                category_id=test_category.id,
                 amount=10.00 * (i + 1),
                 description=f"transaction {i + 1}",
                 date=datetime.now(timezone.utc),
