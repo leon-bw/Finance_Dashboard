@@ -3,7 +3,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from starlette.status import HTTP_201_CREATED
 
 from app.auth import get_current_active_user
 from app.database import get_db
@@ -15,7 +14,7 @@ router = APIRouter(prefix="/categories", tags=["Categories"])
 
 @router.get("/", response_model=List[CategoryResponse])
 def get_categories(
-    current_user: get_current_active_user, db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
 ):
     """
     Get all default and user categories
@@ -56,7 +55,7 @@ def get_category(
     return category
 
 
-@router.post("/", response_model=CategoryResponse, status_code=HTTP_201_CREATED)
+@router.post("/", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
 def create_category(
     category: CategoryCreate,
     current_user: User = Depends(get_current_active_user),
@@ -146,7 +145,7 @@ def update_category(
     return category
 
 
-@router.delete("/{category_id}", response_model=CategoryResponse)
+@router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_category(
     category_id: UUID,
     current_user: User = Depends(get_current_active_user),

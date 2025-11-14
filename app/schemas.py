@@ -178,7 +178,7 @@ class CategoryBase(BaseModel):
     """
 
     name: str = Field(
-        min_length=1, max_length=50, description="The name of the category"
+        min_length=1, max_length=100, description="The name of the category"
     )
     type: Literal["income", "expense"] = Field(description="THe type of the category")
     description: Optional[str] = Field(description="The description of the category")
@@ -200,6 +200,7 @@ class CategoryResponse(CategoryBase):
     """
 
     id: UUID = Field(description="The unique identifier of the category")
+    user_id: Optional[UUID] = None
     is_default: bool = Field(description="Whether this is a default category or not")
     created_at: datetime = Field(
         description="The date and time the category was created in the database"
@@ -212,13 +213,14 @@ class CategoryResponse(CategoryBase):
         from_attributes = True
 
 
-class CategoryUpdate(CategoryBase):
+class CategoryUpdate(BaseModel):
     """
     Model inherits from CategoryBase for updating categories
     """
 
-    name: Optional[str] = None
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = None
+    type: Optional[Literal["income", "expense"]] = None
     icon: Optional[str] = None
     colour: Optional[str] = None
 
@@ -286,7 +288,7 @@ class BudgetResponse(BudgetBase):
         from_attributes = True
 
 
-class BudgetUpdate(BudgetBase):
+class BudgetUpdate(BaseModel):
     """
     Model inherits from BudgetBase for updating budgets
     """

@@ -2,11 +2,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.routers import categories
-
 from . import models  # noqa: F401
 from .database import Base, engine
-from .routers import auth, transactions
+from .routers import auth, categories, transactions
 
 
 @asynccontextmanager
