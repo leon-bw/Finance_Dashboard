@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal, Optional
+from typing import List, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, ValidationInfo, field_validator
@@ -300,3 +300,59 @@ class BudgetUpdate(BaseModel):
     end_date: Optional[datetime] = None
     is_active: Optional[bool] = None
     alert_threshold: Optional[float] = Field(None, ge=0.0, le=1.0)
+
+
+# ----Dashboard class models----
+
+
+class CategorySpending(BaseModel):
+    """
+    Category spending breakdown
+    """
+
+    category_name: str
+    category_icon: Optional[str] = None
+    category_colour: Optional[str] = None
+    total_amount: float
+    transaction_count: int
+    percentage: float
+
+
+class DashboardStats(BaseModel):
+    """
+    Dashboard statistics
+    """
+
+    period: str
+    start_date: datetime
+    end_date: datetime
+    total_income: float
+    total_expense: float
+    net_balance: float
+
+    top_spending_categories: List[CategorySpending]
+
+    total_transactions: int
+    income_transactions: int
+    expense_transactions: int
+    average_transaction_amount: float
+    average_daily_spending: float
+    average_weekly_spending: float
+
+    monthly_budget: Optional[float] = None
+    budget_spent_percentage: Optional[float] = None
+    budget_remaining: Optional[float] = None
+
+    recent_transactions: List[TransactionResponse]
+
+
+class QuickStats:
+    """
+    Simple overview of stats
+    """
+
+    total_income: float
+    total_expense: float
+    net_balance: float
+    budget_spent_percentage: Optional[float] = None
+    budget_remaining: Optional[float] = None
