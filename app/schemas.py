@@ -336,8 +336,8 @@ class DashboardStats(BaseModel):
     income_transactions: int
     expense_transactions: int
     average_transaction_amount: float
-    average_daily_spending: float
-    average_weekly_spending: float
+    average_daily_spend: float
+    average_weekly_spend: float
 
     monthly_budget: Optional[float] = None
     budget_spent_percentage: Optional[float] = None
