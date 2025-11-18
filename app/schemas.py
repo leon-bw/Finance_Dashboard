@@ -346,7 +346,7 @@ class DashboardStats(BaseModel):
     recent_transactions: List[TransactionResponse]
 
 
-class QuickStats:
+class QuickStats(BaseModel):
     """
     Simple overview of stats
     """

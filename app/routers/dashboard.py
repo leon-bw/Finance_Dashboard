@@ -99,13 +99,13 @@ def get_dashboard_stats(
         )
         budget_remaining = budget_for_period - total_expense
 
-    recent_transactions_query = {
+    recent_transactions_query = (
         db.query(Transaction)
         .filter(Transaction.user_id == current_user.id)
         .order_by(Transaction.date.desc())
         .limit(5)
         .all()
-    }
+    )
 
     recent_transactions = [
         {
