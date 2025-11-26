@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -38,7 +39,7 @@ def default_category(test_db):
 
 
 @pytest.fixture
-def user_category(test_db, test_user):
+def custom_category(test_db, test_user):
     """
     A custom category created by the user
     """
@@ -49,7 +50,6 @@ def user_category(test_db, test_user):
         icon="💻",
         colour="#7851A9",
         is_default=False,
-        user_id=test_user.id,
     )
     test_db.add(category)
     test_db.commit()
@@ -64,7 +64,7 @@ class TestGetCategories:
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_get_categories_returns_default(
-        self, client, auth_headers, default_category, user_category
+        self, client, auth_headers, default_category, custom_category
     ):
         response = client.get("/categories/", headers=auth_headers)
 
@@ -158,12 +158,12 @@ class TestCreateCategory:
 
 
 class TestUpdateCategory:
-    def test_update_category(self, client, auth_headers, user_category):
+    def test_update_category(self, client, auth_headers, custom_category):
         """
         Test user updating category
         """
         response = client.post(
-            f"/categories/{user_category.id}",
+            f"/categories/{custom_category.id}",
             headers=auth_headers,
             json={"name": "Side Income", "description": "Updated description"},
         )
@@ -207,7 +207,6 @@ class TestDeleteCategory:
             icon="🗑️",
             colour="#000000",
             is_default=False,
-            user_id=test_user.id,
         )
         test_db.add(cat)
         test_db.commit()
@@ -229,14 +228,14 @@ class TestDeleteCategory:
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_delete_category_with_transaction(
-        self, client, auth_headers, test_db, test_user
+        self, client, auth_headers, test_db, test_user, custom_category
     ):
         transaction = Transaction(
             user_id=test_user.id,
-            category_id=user_category.id,
+            category_id=custom_category.id,
             amount=20.00,
             description="Test transaction",
-            date=None,
+            date=datetime.now(timezone.utc),
             type="expense",
             account="Main",
             currency="GBP",
@@ -246,6 +245,7 @@ class TestDeleteCategory:
         test_db.commit()
 
         response = client.delete(
-            f"/categories/{user_category.id}", headers=auth_headers
+            f"/categories/{custom_category.id}", headers=auth_headers
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "transaction" in response.json()["detail"].lower()

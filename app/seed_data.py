@@ -35,6 +35,13 @@ def seed_default_categories():
                 "colour": "#FFD700",  # gold
             },
             {
+                "name": "Refunds",
+                "type": "income",
+                "description": "Money returned from a past purchase",
+                "icon": "↩️",
+                "colour": "#568203",  # darker green
+            },
+            {
                 "name": "Gifts",
                 "type": "income",
                 "description": "Received as gifts from friends and family",
@@ -42,11 +49,18 @@ def seed_default_categories():
                 "colour": "#D1F6FF",  # light blue
             },
             {
+                "name": "Bonus",
+                "type": "income",
+                "description": "Additional income awarded for performance",
+                "icon": "🤑",
+                "colour": "#EAA221",  # marigold
+            },
+            {
                 "name": "Other",
                 "type": "income",
                 "description": "Other income",
-                "icon": "🤑",
-                "colour": "#999999",  # light gray
+                "icon": "💵",
+                "colour": "#999999",  # light grey
             },
             # Expense Categories
             {
@@ -113,11 +127,39 @@ def seed_default_categories():
                 "colour": "#EDE6CA",  # eggshell
             },
             {
+                "name": "Savings",
+                "type": "expense",
+                "description": "Savings and emergency fund contributions",
+                "icon": "🏦",
+                "colour": "#FDFBD4",  # cream
+            },
+            {
+                "name": "Debt Repayment",
+                "type": "expense",
+                "description": "Payment made toward an outstanding debt",
+                "icon": "💳",
+                "colour": "#6D3B07",  # mocha brown
+            },
+            {
+                "name": "Charity",
+                "type": "expense",
+                "description": "Donation to a charitable cause",
+                "icon": "❤️",
+                "colour": "#FF0090",  # magenta
+            },
+            {
+                "name": "Gifts",
+                "type": "expense",
+                "description": "Sent as gifts to friends and family",
+                "icon": "🎁",
+                "colour": "#111184",  # dark blue
+            },
+            {
                 "name": "Other",
                 "type": "expense",
                 "description": "Other expenses",
                 "icon": "💸",
-                "colour": "#333333",  # dark gray
+                "colour": "#333333",  # dark grey
             },
         ]
 
@@ -211,6 +253,16 @@ def seed_demo_transactions():
                     "day": 25,
                 }
             ],
+            "Savings": [
+                {
+                    "description": "Emergency Fund Contribution",
+                    "amount": 150.00,
+                    "type": "expense",
+                    "category": "Savings",
+                    "frequency": "monthly",
+                    "day": 28,
+                },
+            ],
             "Groceries": [
                 {
                     "description": "Tesco Weekly Shop",
@@ -270,13 +322,7 @@ def seed_demo_transactions():
                 },
                 {
                     "description": "Costa Coffee",
-                    "amount_range": (3, 6),
-                    "type": "expense",
-                    "category": "Food",
-                },
-                {
-                    "description": "Pizza Express",
-                    "amount_range": (20, 40),
+                    "amount_range": (3, 12),
                     "type": "expense",
                     "category": "Food",
                 },
@@ -371,6 +417,22 @@ def seed_demo_transactions():
                     "category": "Shopping",
                 },
             ],
+            "Gifts": [
+                {
+                    "description": "Birthday Gift",
+                    "amount_range": (20, 60),
+                    "type": "expense",
+                    "category": "Gifts",
+                },
+            ],
+            "Charity": [
+                {
+                    "description": "Charity Donation",
+                    "amount_range": (5, 30),
+                    "type": "expense",
+                    "category": "Charity",
+                },
+            ],
             "Health": [
                 {
                     "description": "PureGym Membership",
@@ -411,6 +473,14 @@ def seed_demo_transactions():
                     "category": "Utilities",
                     "frequency": "monthly",
                     "day": 8,
+                },
+            ],
+            "Debt Repayment": [
+                {
+                    "description": "Credit Card Payment",
+                    "amount_range": (50, 200),
+                    "type": "expense",
+                    "category": "Debt Repayment",
                 },
             ],
             "Housing": [

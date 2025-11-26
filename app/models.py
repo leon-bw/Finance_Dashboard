@@ -58,12 +58,14 @@ class User(Base):
     # Relationships
     transactions = relationship("Transaction", back_populates="user")
     budgets = relationship("Budget", back_populates="user")
+    categories = relationship("Category", back_populates="user")
 
 
 class Category(Base):
     __tablename__ = "categories"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     name = Column(String, nullable=False)
     type = Column(String, nullable=False)
     description = Column(String, nullable=True)
@@ -80,6 +82,7 @@ class Category(Base):
     # Relationships
     transactions = relationship("Transaction", back_populates="category")
     budgets = relationship("Budget", back_populates="category")
+    user = relationship("User", back_populates="categories")
 
 
 class Budget(Base):
