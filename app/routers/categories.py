@@ -65,9 +65,13 @@ def create_category(
     Create a new custom category for current user
     """
     # Does category already exist for user?
-    existing_category = db.query(Category).filter(
-        Category.name == category.name,
-        (Category.is_default) | (Category.user_id == current_user.id),
+    existing_category = (
+        db.query(Category)
+        .filter(
+            Category.name == category.name,
+            (Category.is_default) | (Category.user_id == current_user.id),
+        )
+        .first()
     )
 
     if existing_category:
@@ -169,7 +173,7 @@ def delete_category(
     # Prevent deletion of default category
     if category.is_default:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Default category cannot be deleted",
         )
 
@@ -179,7 +183,7 @@ def delete_category(
 
     if transaction_count > 0:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Category with {transaction_count} transaction(s) cannot be deleted, delete or reassign transaction(s) first",
         )
 

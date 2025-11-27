@@ -485,7 +485,7 @@ def seed_demo_transactions():
             ],
             "Housing": [
                 {
-                    "description": "Rent Payment",
+                    "description": "Mortgage Payment",
                     "amount": 1200.00,
                     "type": "expense",
                     "category": "Housing",
