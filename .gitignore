@@ -52,3 +52,6 @@ logs/
 # Compiled files
 *.pyc
 main.cpython-311.pyc
+
+# Cursor
+.cursor/

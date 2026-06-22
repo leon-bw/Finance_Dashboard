@@ -17,8 +17,8 @@ def _as_aware(dt: Optional[datetime]) -> Optional[datetime]:
     """
     Normalise a datetime to timezone-aware UTC.
 
-    SQLite returns naive datetimes, while values parsed from request bodies are
-    timezone-aware; coerce both so they can be compared safely.
+    Values parsed from request bodies are
+    timezone-aware so coerce both to compare safely.
     """
     if dt is not None and dt.tzinfo is None:
         return dt.replace(tzinfo=timezone.utc)

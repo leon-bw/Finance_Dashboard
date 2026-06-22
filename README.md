@@ -1,5 +1,5 @@
-# Financial Wellness API 📊
-An educational **financial-wellness** API that pairs personal-finance tracking with **gamified learning**. Manage transactions and budgets, then build healthier money habits through bite-sized courses, lessons and quizzes that reward you with XP, levels and daily streaks. 
+# Financial Wellness web app 📊
+An educational **financial-wellness** app that pairs personal-finance tracking with **gamified learning**. Manage transactions and budgets, then build healthier money habits through bite-sized courses, lessons and quizzes that reward you with XP, levels and daily streaks. 
 
 ## Why I Built This
 Managing personal finance is a challenge that everyone faces. After trying various budgeting apps, I found them either too complex, lacking customisation and just not suited to my needs. More importantly, they treated money as purely numerical data ignoring the emotional and behavioral aspects that drive our spending decisions. Exploring this emotional connection is something I wanted to pursue

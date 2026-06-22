@@ -612,7 +612,7 @@ LEARNING_CONTENT = {
     "title": "Budgeting Basics",
     "description": "Learn the fundamentals of budgeting and take control of your money.",
     "icon": "📘",
-    "colour": "#58CC02",  # Duolingo green
+    "colour": "#58CC02",
     "order": 1,
     "units": [
         {
