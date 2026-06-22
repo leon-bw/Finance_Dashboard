@@ -4,7 +4,16 @@ from datetime import datetime, timedelta, timezone
 from app.auth import get_password_hash
 
 from .database import Session
-from .models import Category, Transaction, User
+from .models import (
+    Category,
+    Course,
+    Lesson,
+    Question,
+    Transaction,
+    Unit,
+    User,
+    UserLearningStats,
+)
 
 
 def seed_default_categories():
@@ -598,11 +607,233 @@ def seed_demo_transactions():
         db.close()
 
 
+LEARNING_CONTENT = {
+    "slug": "budgeting-basics",
+    "title": "Budgeting Basics",
+    "description": "Learn the fundamentals of budgeting and take control of your money.",
+    "icon": "📘",
+    "colour": "#58CC02",  # Duolingo green
+    "order": 1,
+    "units": [
+        {
+            "title": "Getting Started",
+            "description": "What a budget is and why it matters.",
+            "order": 1,
+            "lessons": [
+                {
+                    "title": "What is a budget?",
+                    "order": 1,
+                    "xp_reward": 10,
+                    "questions": [
+                        {
+                            "prompt": "What is a budget?",
+                            "type": "multiple_choice",
+                            "options": [
+                                "A plan for how you spend and save your money",
+                                "A type of bank account",
+                                "A government tax",
+                                "A credit score",
+                            ],
+                            "correct_answer": "A plan for how you spend and save your money",
+                            "explanation": "A budget is simply a plan that helps you decide how to use your income.",
+                            "order": 1,
+                        },
+                        {
+                            "prompt": "A budget can help you avoid overspending.",
+                            "type": "true_false",
+                            "options": ["True", "False"],
+                            "correct_answer": "True",
+                            "explanation": "By planning ahead, a budget helps you keep spending under control.",
+                            "order": 2,
+                        },
+                        {
+                            "prompt": "Which of these is the first step in making a budget?",
+                            "type": "multiple_choice",
+                            "options": [
+                                "Know your income",
+                                "Cancel all subscriptions",
+                                "Open a new credit card",
+                                "Sell your car",
+                            ],
+                            "correct_answer": "Know your income",
+                            "explanation": "You need to know how much money is coming in before you can plan how to use it.",
+                            "order": 3,
+                        },
+                    ],
+                },
+                {
+                    "title": "Needs vs wants",
+                    "order": 2,
+                    "xp_reward": 10,
+                    "questions": [
+                        {
+                            "prompt": "Which of these is a 'need'?",
+                            "type": "multiple_choice",
+                            "options": [
+                                "Rent",
+                                "A holiday abroad",
+                                "A new games console",
+                                "Designer trainers",
+                            ],
+                            "correct_answer": "Rent",
+                            "explanation": "Needs are essentials like housing, food and utilities.",
+                            "order": 1,
+                        },
+                        {
+                            "prompt": "A streaming subscription is usually a 'want', not a 'need'.",
+                            "type": "true_false",
+                            "options": ["True", "False"],
+                            "correct_answer": "True",
+                            "explanation": "Entertainment is nice to have, but it is not essential for living.",
+                            "order": 2,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            "title": "Saving Smart",
+            "description": "Build habits that grow your savings.",
+            "order": 2,
+            "lessons": [
+                {
+                    "title": "The 50/30/20 rule",
+                    "order": 1,
+                    "xp_reward": 15,
+                    "questions": [
+                        {
+                            "prompt": "In the 50/30/20 rule, what does the 20% represent?",
+                            "type": "multiple_choice",
+                            "options": [
+                                "Savings and debt repayment",
+                                "Needs",
+                                "Wants",
+                                "Taxes",
+                            ],
+                            "correct_answer": "Savings and debt repayment",
+                            "explanation": "50% goes to needs, 30% to wants, and 20% to savings and paying off debt.",
+                            "order": 1,
+                        },
+                        {
+                            "prompt": "The 50/30/20 rule suggests spending 50% of income on wants.",
+                            "type": "true_false",
+                            "options": ["True", "False"],
+                            "correct_answer": "False",
+                            "explanation": "50% is for needs, not wants. Wants get 30%.",
+                            "order": 2,
+                        },
+                        {
+                            "prompt": "Why is an emergency fund important?",
+                            "type": "multiple_choice",
+                            "options": [
+                                "It covers unexpected costs without going into debt",
+                                "It increases your tax bill",
+                                "It lowers your salary",
+                                "It is required by law",
+                            ],
+                            "correct_answer": "It covers unexpected costs without going into debt",
+                            "explanation": "An emergency fund is a safety net for surprises like a car repair or job loss.",
+                            "order": 3,
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+}
+
+
+def seed_learning_content():
+    db = Session()
+
+    try:
+        existing = (
+            db.query(Course).filter(Course.slug == LEARNING_CONTENT["slug"]).first()
+        )
+        if existing:
+            print("Learning content already exists")
+        else:
+            course = Course(
+                title=LEARNING_CONTENT["title"],
+                slug=LEARNING_CONTENT["slug"],
+                description=LEARNING_CONTENT["description"],
+                icon=LEARNING_CONTENT["icon"],
+                colour=LEARNING_CONTENT["colour"],
+                order=LEARNING_CONTENT["order"],
+            )
+            db.add(course)
+            db.flush()  # assign course.id before adding units
+
+            lesson_count = 0
+            question_count = 0
+            for unit_data in LEARNING_CONTENT["units"]:
+                unit = Unit(
+                    course_id=course.id,
+                    title=unit_data["title"],
+                    description=unit_data["description"],
+                    order=unit_data["order"],
+                )
+                db.add(unit)
+                db.flush()
+
+                for lesson_data in unit_data["lessons"]:
+                    lesson = Lesson(
+                        unit_id=unit.id,
+                        title=lesson_data["title"],
+                        order=lesson_data["order"],
+                        xp_reward=lesson_data["xp_reward"],
+                    )
+                    db.add(lesson)
+                    db.flush()
+                    lesson_count += 1
+
+                    for question_data in lesson_data["questions"]:
+                        db.add(
+                            Question(
+                                lesson_id=lesson.id,
+                                prompt=question_data["prompt"],
+                                type=question_data["type"],
+                                options=question_data["options"],
+                                correct_answer=question_data["correct_answer"],
+                                explanation=question_data["explanation"],
+                                order=question_data["order"],
+                            )
+                        )
+                        question_count += 1
+
+            db.commit()
+            print(
+                f"Learning content created: 1 course, {lesson_count} lessons, "
+                f"{question_count} questions"
+            )
+
+        # Make sure the demo user has a learning stats record
+        demo_user = db.query(User).filter(User.is_demo).first()
+        if demo_user:
+            stats = (
+                db.query(UserLearningStats)
+                .filter(UserLearningStats.user_id == demo_user.id)
+                .first()
+            )
+            if not stats:
+                db.add(UserLearningStats(user_id=demo_user.id))
+                db.commit()
+                print("Learning stats created for demo user")
+
+    except Exception as error:
+        db.rollback()
+        print(f"Error seeding learning content: {error}")
+
+    finally:
+        db.close()
+
+
 def seed_all():
     print("started database seeding")
     seed_default_categories()
     seed_demo_user()
     seed_demo_transactions()
+    seed_learning_content()
     print("Database seeding complete")
 
 

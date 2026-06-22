@@ -167,7 +167,7 @@ def get_quick_stats(
 
     if monthly_budget and monthly_budget > 0:
         now = datetime.now(timezone.utc)
-        start_of_month = now.replace(days=1, hour=0, minute=0, second=0, microsecond=0)
+        start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
         current_month_expense = sum(
             t.amount
@@ -230,7 +230,7 @@ def get_spending_by_category(
         .group_by(Category.id)
         .order_by(func.sum(Transaction.amount).desc())
         .limit(limit)
-        .all(),
+        .all()
     )
 
     return [

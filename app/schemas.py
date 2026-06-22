@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Literal, Optional
 from uuid import UUID
 
@@ -356,3 +356,165 @@ class QuickStats(BaseModel):
     net_balance: float
     budget_spent_percentage: Optional[float] = None
     budget_remaining: Optional[float] = None
+
+
+# ----Learning / gamification class models----
+
+
+class LearningStatsResponse(BaseModel):
+    """
+    A user's gamification stats (XP, level, streaks, hearts)
+    """
+
+    xp_total: int
+    level: int
+    current_streak: int
+    longest_streak: int
+    hearts: int
+    last_activity_date: Optional[date] = None
+
+    class Config:
+        from_attributes = True
+
+
+class QuestionResponse(BaseModel):
+    """
+    A quiz question as shown to the user (correct answer hidden)
+    """
+
+    id: UUID
+    prompt: str
+    type: Literal["multiple_choice", "true_false"]
+    options: Optional[List[str]] = None
+    order: int
+
+    class Config:
+        from_attributes = True
+
+
+class LessonResponse(BaseModel):
+    """
+    A lesson with its questions, ready to be played
+    """
+
+    id: UUID
+    unit_id: UUID
+    title: str
+    order: int
+    xp_reward: int
+    questions: List[QuestionResponse]
+
+    class Config:
+        from_attributes = True
+
+
+class LessonSummary(BaseModel):
+    """
+    Lightweight lesson view with the user's progress status
+    """
+
+    id: UUID
+    title: str
+    order: int
+    xp_reward: int
+    status: Literal["not_started", "completed"]
+    score: Optional[float] = None
+
+
+class UnitResponse(BaseModel):
+    """
+    A unit and the lessons it contains
+    """
+
+    id: UUID
+    title: str
+    description: Optional[str] = None
+    order: int
+    lessons: List[LessonSummary]
+
+
+class CourseSummary(BaseModel):
+    """
+    Course overview with the user's completion progress
+    """
+
+    id: UUID
+    title: str
+    slug: str
+    description: Optional[str] = None
+    icon: Optional[str] = None
+    colour: Optional[str] = None
+    order: int
+    total_lessons: int
+    completed_lessons: int
+    progress_percentage: float
+
+
+class CourseDetail(BaseModel):
+    """
+    Full course breakdown with units and lessons
+    """
+
+    id: UUID
+    title: str
+    slug: str
+    description: Optional[str] = None
+    icon: Optional[str] = None
+    colour: Optional[str] = None
+    order: int
+    units: List[UnitResponse]
+
+
+class AnswerSubmission(BaseModel):
+    """
+    A single answer submitted for a question
+    """
+
+    question_id: UUID
+    answer: str
+
+
+class LessonSubmission(BaseModel):
+    """
+    All answers submitted when completing a lesson
+    """
+
+    answers: List[AnswerSubmission]
+
+
+class QuestionResult(BaseModel):
+    """
+    The graded outcome for a single question
+    """
+
+    question_id: UUID
+    correct: bool
+    correct_answer: str
+    explanation: Optional[str] = None
+
+
+class LessonResult(BaseModel):
+    """
+    The result of submitting a lesson, including updated stats
+    """
+
+    lesson_id: UUID
+    score: float
+    correct_count: int
+    total_questions: int
+    passed: bool
+    xp_earned: int
+    results: List[QuestionResult]
+    stats: LearningStatsResponse
+
+
+class ProgressResponse(BaseModel):
+    """
+    Overall learning progress across all courses
+    """
+
+    total_courses: int
+    total_lessons: int
+    completed_lessons: int
+    progress_percentage: float
+    stats: LearningStatsResponse

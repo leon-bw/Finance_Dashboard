@@ -1,5 +1,5 @@
-# Personal Finance Dashboard API 📊
-A RESTful API for managing personal finances, tracking transactions, and monitoring budgets. Built with FastAPI and designed for easy integration with frontend applications.
+# Financial Wellness API 📊
+An educational **financial-wellness** API that pairs personal-finance tracking with **gamified learning**. Manage transactions and budgets, then build healthier money habits through bite-sized courses, lessons and quizzes that reward you with XP, levels and daily streaks. 
 
 ## Why I Built This
 Managing personal finance is a challenge that everyone faces. After trying various budgeting apps, I found them either too complex, lacking customisation and just not suited to my needs. More importantly, they treated money as purely numerical data ignoring the emotional and behavioral aspects that drive our spending decisions. Exploring this emotional connection is something I wanted to pursue
@@ -43,6 +43,10 @@ I wanted to build a solution that:
 - Budget Tracking - Set budgets with alerts and progress monitoring
 
 <!-- - Financial Analytics - Dashboard with spending insights and trends -->
+
+- Gamified Learning - Courses, units and lessons with interactive quizzes to build financial literacy
+
+- Gamification - Earn XP, level up, and keep daily streaks to make learning fun and sticky
 
 - Auto-Generated Documentation - Interactive API docs via Swagger UI
 
@@ -90,6 +94,17 @@ POST |  /budgets/ | Create new budget
 PUT |   /budgets/{id} | Update budget
 DELETE |    /budgets/{id} | Delete budget
 
+#### Learning Endpoints
+
+| Method |  Endpoint |  Description |
+| -------- | -------- | -------- |
+GET |   /learn/courses | List courses with the user's progress
+GET |   /learn/courses/{id} | Get a course with its units and lessons
+GET |   /learn/lessons/{id} | Get a lesson and its quiz questions
+POST |  /learn/lessons/{id}/submit | Submit answers, get graded and earn XP
+GET |   /learn/me/stats | Get XP, level, streaks and hearts
+GET |   /learn/me/progress | Get overall learning progress
+
 Example Request:
 
 ```
@@ -134,18 +149,24 @@ finance-dashboard/
 │   ├── database.py          # Database configuration
 │   ├── models.py            # SQLAlchemy models
 │   ├── schemas.py           # Pydantic schemas
+│   ├── gamification.py      # XP, level and streak helpers
 │   ├── seed_data.py         # Database seeding scripts
 │   ├── routers/
 │   │   ├── __init__.py
 │   │   ├── auth.py          # Auth endpoints
 │   │   ├── transactions.py  # Transaction endpoints
 │   │   ├── categories.py    # Category endpoints
-│   │   └── budgets.py       # Budget endpoints
+│   │   ├── budgets.py       # Budget endpoints
+│   │   ├── dashboard.py     # Dashboard / analytics endpoints
+│   │   └── learn.py         # Learning + gamification endpoints
 │   └── tests/
 │       ├── __init__.py
 │       ├── conftest.py      # Pytest fixtures
 │       ├── test_auth.py     # Authentication tests
-│       └── test_transactions.py  # Transaction tests
+│       ├── test_categories.py    # Category tests
+│       ├── test_transactions.py  # Transaction tests
+│       ├── test_budgets.py  # Budget tests
+│       └── test_learn.py    # Learning tests
 ├── .env                     # Environment variables
 ├── .gitignore
 ├── requirements.txt         # Python dependencies

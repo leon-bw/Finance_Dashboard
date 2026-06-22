@@ -111,5 +111,5 @@ def authenticated_client(client, test_user):
     )
     token = response.json()["access_token"]
 
-    client.headers = {**client.headers, "Authorisation": f"Bearer {token}"}
+    client.headers = {**client.headers, "Authorization": f"Bearer {token}"}
     return client
