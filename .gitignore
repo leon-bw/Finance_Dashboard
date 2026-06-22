@@ -55,3 +55,4 @@ main.cpython-311.pyc
 
 # Cursor
 .cursor/
+.cursor/rules/
