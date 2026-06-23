@@ -169,10 +169,16 @@ def get_quick_stats(
         now = datetime.now(timezone.utc)
         start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
+        def _is_this_month(value: datetime) -> bool:
+            # SQLite returns naive datetimes; treat them as UTC for comparison.
+            if value.tzinfo is None:
+                value = value.replace(tzinfo=timezone.utc)
+            return value >= start_of_month
+
         current_month_expense = sum(
             t.amount
             for t in transactions
-            if t.type == "expense" and t.date >= start_of_month
+            if t.type == "expense" and _is_this_month(t.date)
         )
 
         budget_spent_percentage = (

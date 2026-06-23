@@ -139,6 +139,26 @@ end_date - Filter to date
 
 <br>
 
+## Running the App
+
+Backend (FastAPI):
+
+```
+source .venv/bin/activate
+uvicorn app.main:app --reload      # http://127.0.0.1:8000  (docs at /docs)
+python -m app.seed_data            # seed demo user + categories + learning content
+```
+
+Frontend (Next.js + ShadCN, in `frontend/`):
+
+```
+cd frontend
+npm install
+npm run dev                        # http://localhost:3000
+```
+
+The frontend reads the API base URL from `frontend/.env.local` (`NEXT_PUBLIC_API_URL`), and the backend allows the dev frontend origin via `CORS_ORIGINS`. Demo login: username `demo`, password `demo1234`.
+
 ## Project Structure
 ```
 finance-dashboard/
