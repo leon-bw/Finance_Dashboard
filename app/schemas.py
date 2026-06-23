@@ -518,3 +518,31 @@ class ProgressResponse(BaseModel):
     completed_lessons: int
     progress_percentage: float
     stats: LearningStatsResponse
+
+
+# ----Notification class models----
+
+
+class NotificationResponse(BaseModel):
+    """
+    A user notification (achievement, streak, level up, etc.)
+    """
+
+    id: UUID
+    type: Literal["lesson_completed", "streak", "level_up", "achievement"]
+    title: str
+    message: str
+    icon: Optional[str] = None
+    is_read: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class UnreadCountResponse(BaseModel):
+    """
+    Count of unread notifications
+    """
+
+    unread: int

@@ -6,7 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from . import models  # noqa: F401
 from .database import Base, engine
-from .routers import auth, budgets, categories, dashboard, learn, transactions
+from .routers import (
+    auth,
+    budgets,
+    categories,
+    dashboard,
+    learn,
+    notifications,
+    transactions,
+)
 
 
 @asynccontextmanager
@@ -17,7 +25,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Financial Wellness API",
+    title="Financial Wellness Web App",
     description=(
         "An educational financial-wellness platform that combines personal-finance "
         "tracking with learning to build healthier money habits"
@@ -43,6 +51,7 @@ app.include_router(categories.router)
 app.include_router(budgets.router)
 app.include_router(dashboard.router)
 app.include_router(learn.router)
+app.include_router(notifications.router)
 
 
 @app.get("/")

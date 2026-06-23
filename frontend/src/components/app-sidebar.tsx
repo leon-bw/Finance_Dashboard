@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -10,10 +12,12 @@ const NAV_ITEMS = [
   { href: "/learn", label: "Learn", icon: "🎓" },
   { href: "/transactions", label: "Transactions", icon: "💳" },
   { href: "/budgets", label: "Budgets", icon: "🎯" },
+  { href: "/notifications", label: "Notifications", icon: "🔔" },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   return (
     <aside className="bg-card hidden w-60 shrink-0 flex-col border-r md:flex">
@@ -42,6 +46,16 @@ export function AppSidebar() {
           );
         })}
       </nav>
+      <div className="border-t p-3">
+        <Button
+          variant="ghost"
+          className="text-muted-foreground hover:text-foreground w-full justify-start gap-3"
+          onClick={logout}
+        >
+          <span className="text-base">🚪</span>
+          Sign out
+        </Button>
+      </div>
     </aside>
   );
 }

@@ -1,8 +1,18 @@
 import type {
+  AppNotification,
+  Budget,
+  BudgetPayload,
+  Category,
+  CourseDetail,
+  CourseSummary,
   LearningStats,
+  Lesson,
+  LessonResult,
   QuickStats,
   RegisterPayload,
   Token,
+  Transaction,
+  TransactionPayload,
   User,
 } from "./types";
 
@@ -110,4 +120,118 @@ export async function getQuickStats(): Promise<QuickStats> {
 
 export async function getLearningStats(): Promise<LearningStats> {
   return apiFetch<LearningStats>("/learn/me/stats");
+}
+
+// ---- Learning ----
+
+export async function getCourses(): Promise<CourseSummary[]> {
+  return apiFetch<CourseSummary[]>("/learn/courses");
+}
+
+export async function getCourse(id: string): Promise<CourseDetail> {
+  return apiFetch<CourseDetail>(`/learn/courses/${id}`);
+}
+
+export async function getLesson(id: string): Promise<Lesson> {
+  return apiFetch<Lesson>(`/learn/lessons/${id}`);
+}
+
+export async function submitLesson(
+  id: string,
+  answers: { question_id: string; answer: string }[],
+): Promise<LessonResult> {
+  return apiFetch<LessonResult>(`/learn/lessons/${id}/submit`, {
+    method: "POST",
+    body: JSON.stringify({ answers }),
+  });
+}
+
+// ---- Categories ----
+
+export async function getCategories(): Promise<Category[]> {
+  return apiFetch<Category[]>("/categories/");
+}
+
+// ---- Transactions ----
+
+export async function getTransactions(): Promise<Transaction[]> {
+  return apiFetch<Transaction[]>("/transactions/");
+}
+
+export async function createTransaction(
+  payload: TransactionPayload,
+): Promise<Transaction> {
+  return apiFetch<Transaction>("/transactions/", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateTransaction(
+  id: string,
+  payload: Partial<TransactionPayload>,
+): Promise<Transaction> {
+  return apiFetch<Transaction>(`/transactions/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteTransaction(id: string): Promise<void> {
+  return apiFetch<void>(`/transactions/${id}`, { method: "DELETE" });
+}
+
+// ---- Budgets ----
+
+export async function getBudgets(): Promise<Budget[]> {
+  return apiFetch<Budget[]>("/budgets/");
+}
+
+export async function createBudget(payload: BudgetPayload): Promise<Budget> {
+  return apiFetch<Budget>("/budgets/", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateBudget(
+  id: string,
+  payload: Partial<BudgetPayload> & { is_active?: boolean },
+): Promise<Budget> {
+  return apiFetch<Budget>(`/budgets/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteBudget(id: string): Promise<void> {
+  return apiFetch<void>(`/budgets/${id}`, { method: "DELETE" });
+}
+
+// ---- Notifications ----
+
+export async function getNotifications(
+  unreadOnly = false,
+): Promise<AppNotification[]> {
+  const query = unreadOnly ? "?unread_only=true" : "";
+  return apiFetch<AppNotification[]>(`/notifications/${query}`);
+}
+
+export async function getUnreadCount(): Promise<number> {
+  const data = await apiFetch<{ unread: number }>(
+    "/notifications/unread-count",
+  );
+  return data.unread;
+}
+
+export async function markNotificationRead(
+  id: string,
+): Promise<AppNotification> {
+  return apiFetch<AppNotification>(`/notifications/${id}/read`, {
+    method: "POST",
+  });
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  return apiFetch<void>("/notifications/read-all", { method: "POST" });
 }

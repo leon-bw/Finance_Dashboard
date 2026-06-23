@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
 import { useAuth } from "@/contexts/auth-context";
+import { NotificationsProvider } from "@/contexts/notifications-context";
 
 export default function AppLayout({
   children,
@@ -28,12 +29,14 @@ export default function AppLayout({
   }
 
   return (
-    <div className="flex flex-1">
-      <AppSidebar />
-      <div className="flex flex-1 flex-col">
-        <AppTopbar />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+    <NotificationsProvider>
+      <div className="flex flex-1">
+        <AppSidebar />
+        <div className="flex flex-1 flex-col">
+          <AppTopbar />
+          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        </div>
       </div>
-    </div>
+    </NotificationsProvider>
   );
 }

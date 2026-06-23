@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.auth import get_current_active_user
 from app.database import get_db
 from app.gamification import PASS_THRESHOLD, calculate_streak, level_for_xp
+from app.notifications import create_notification
 from app.models import (
     Course,
     Lesson,
@@ -241,8 +242,11 @@ def submit_lesson(
         db.add(progress)
 
     stats = get_or_create_stats(db, current_user)
+    previous_level = stats.level
+    previous_streak = stats.current_streak
 
     xp_earned = 0
+    newly_completed = False
     if passed:
         was_completed = progress.status == "completed"
         progress.status = "completed"
@@ -250,6 +254,7 @@ def submit_lesson(
         # XP is only awarded the first time a lesson is completed.
         if not was_completed:
             xp_earned = lesson.xp_reward
+            newly_completed = True
 
     progress.score = (
         max(progress.score, score) if progress.score is not None else score
@@ -264,6 +269,35 @@ def submit_lesson(
     if xp_earned:
         stats.xp_total += xp_earned
         stats.level = level_for_xp(stats.xp_total)
+
+    # Raise notifications for achievements unlocked by this submission.
+    if newly_completed:
+        create_notification(
+            db,
+            user_id=current_user.id,
+            type="lesson_completed",
+            title="Lesson complete!",
+            message=f"You completed '{lesson.title}' and earned {xp_earned} XP.",
+            icon="🎓",
+        )
+    if stats.level > previous_level:
+        create_notification(
+            db,
+            user_id=current_user.id,
+            type="level_up",
+            title="Level up!",
+            message=f"You reached level {stats.level}. Keep it up!",
+            icon="⭐",
+        )
+    if new_streak > previous_streak:
+        create_notification(
+            db,
+            user_id=current_user.id,
+            type="streak",
+            title=f"{new_streak}-day streak!",
+            message=f"You're on a {new_streak}-day learning streak. Don't stop now!",
+            icon="🔥",
+        )
 
     db.commit()
     db.refresh(stats)
